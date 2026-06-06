@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  CSV_URL: "Latihan-ci2/MLproject/train_pca.csv"
+  CSV_URL: "Latihan-CI2/MLproject/train_pca.csv"
 
 jobs:
   build:
