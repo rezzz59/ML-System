@@ -1,5 +1,5 @@
-name: CI MLflow
- 
+name: CI
+
 on:
   push:
     branches:
@@ -7,33 +7,68 @@ on:
   pull_request:
     branches:
       - main
- 
+
 env:
-  CSV_URL: "Modul 2 - Membangun dan Mengelola Metadata dengan Tools Open-Source/Latihan Version Control/Project/wine-quality.csv"
-  TARGET_VAR: "quality"
-  ALPHA: 0.5
-  L1_RATIO: 0.5
-  RANDOM_STATE: 42
- 
+  CSV_URL: "Latihan-ci2/MLproject/train_pca.csv"
+
 jobs:
   build:
     runs-on: ubuntu-latest
- 
+
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v3
- 
+
       # Setup Python 3.12.7
       - name: Set up Python 3.12.7
         uses: actions/setup-python@v4
         with:
           python-version: "3.12.7"
-      
+
       # Check Env Variables
       - name: Check Env
         run: |
           echo $CSV_URL
- 
+
+      # Install mlflow
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mlflow
+
+      # Run as a mlflow project
+      - name: Run mlflow project
+        run: |
+          mlflow run Latihan-ci2/MLproject --env-manager=local
+
+      # Save models to GitHub Repository
+      - name: Save mlruns to repo
+        run: |
+          git config --global user.name ${{ secrets.username }}
+          git config --global user.email ${{ secrets.email }}
+          git add mlruns/
+          git commit -m "Save mlruns from CI run" || true
+          git push origin main
+        
+        # Set up Git LFS sebelum melakukan push file besar
+      - name: Set up Git LFS
+        run: |
+          git config --global user.name ${{ secrets.username }}
+          git config --global user.email ${{ secrets.email }}
+          git lfs install                                    # 1. Inisialisasi LFS di server Ubuntu Actions
+          git lfs track "mlruns/**"                          # 2. Perintahkan LFS untuk mengunci folder mlruns
+          git add .gitattributes                             # 3. Amankan file konfigurasi pelacakan LFS
+          git commit -m "Track large files in mlruns with Git LFS" || true
+          git push origin main
+
+      # Jalankan push akhir untuk seluruh artefak mlruns
+      - name: Save mlruns to repo
+        run: |
+          git config --global user.name ${{ secrets.username }}
+          git config --global user.email ${{ secrets.email }}
+          git add -f mlruns/                                 # Force add folder mlruns
+          git commit -m "Save mlruns from CI run" || true
+          git push origin main
       # Install mlflow
       - name: Install dependencies
         run: |
@@ -43,4 +78,17 @@ jobs:
       # Run as a mlflow project
       - name: Run mlflow project
         run: |
-          mlflow run "${{ github.workspace }}/Modul 2 - Membangun dan Mengelola Metadata dengan Tools Open-Source/Latihan Version Control/Project" --env-manager=local
+          mlflow run Modul\ 2\ -\ Membangun\ dan\ Mengelola\ Metadata\ dengan\ Tools\ Open-Source/Latihan-CI2/MLproject --env-manager=local 
+
+      # Install library Google Client API
+      - name: Install Google Drive Dependencies
+        run: |
+          pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+      # Tembak langsung file modelnya ke awan Google Drive
+      - name: Upload to Google Drive
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: |
+          python "Modul 2 - Membangun dan Mengelola Metadata dengan Tools Open-Source/Latihan-CI2/MLproject/upload_to_gdrive.py"
