@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - main
-""""This is a GitHub Actions workflow file that defines a continuous integration (CI) pipeline for a machine learning project using MLflow. The workflow is triggered on pushes and pull requests to the main branch. It sets up the environment, installs dependencies, and runs the MLflow project."""
  
 env:
   CSV_URL: "Project/wine-quality.csv"
