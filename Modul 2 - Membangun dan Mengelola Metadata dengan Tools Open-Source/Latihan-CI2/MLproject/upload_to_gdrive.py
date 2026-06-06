@@ -40,7 +40,7 @@ def upload_folder_to_drive():
                     body=file_metadata, media_body=media, fields="id"
                 ).execute()
                 
-                print(f"🚀 SELESAI! File sukses terupload dengan Drive ID: {uploaded_file.get('id')}")
+                print(f"🚀SELESAI! File sukses terupload dengan Drive ID: {uploaded_file.get('id')}")
 
 if __name__ == "__main__":
     upload_folder_to_drive()
