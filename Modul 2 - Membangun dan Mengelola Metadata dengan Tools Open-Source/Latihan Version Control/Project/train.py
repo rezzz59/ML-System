@@ -15,7 +15,7 @@ from sklearn.linear_model import ElasticNet
 import mlflow
 import mlflow.sklearn
 
-
+print("MLflow version:", mlflow.__version__)
 def eval_metrics(actual, pred):
     rmse = np.sqrt(mean_squared_error(actual, pred))
     mae = mean_absolute_error(actual, pred)
